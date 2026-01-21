@@ -24,87 +24,162 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Vq4VYYALKsegjW2SVpbU_m
 
 
 ## INSTRCTION
+ Production Deployment (Docker + Nginx)
 
-To deploy this application to an Ubuntu VPS, we need to containerize it using Docker and serve it with Nginx. I will add the necessary configuration files (package.json, vite.config.ts, Dockerfile, etc.) and provide the deployment commands.
-Here are the changes to prepare the codebase for production deployment.
-1. Build Configuration & Dependencies
-I am creating the standard configuration files required to bundle the React app and Tailwind CSS for production.
-package.json
-check_circle
-vite.config.ts
-check_circle
-tsconfig.json
-check_circle
-tsconfig.node.json
-check_circle
-tailwind.config.js
-check_circle
-postcss.config.js
-check_circle
-index.css
-check_circle
-index.tsx
-check_circle
-index.html
-check_circle
-Dockerfile
-error
-error
-An internal error occurred.
-nginx.conf
-check_circle
-docker-compose.yml
-check_circle
-2. Ubuntu VPS Deployment Instructions
-Here is the step-by-step procedure to deploy the SecureDocs Chat application on a fresh Ubuntu 20.04/22.04 VPS.
-Step 1: Connect to your VPS
-SSH into your server:
-code
-Bash
+Chat is a React + Vite + Tailwind application deployed on an Ubuntu VPS using Docker.
+In production, the app is built into static files and served by Nginx.
+
+==================================================
+TECH STACK
+==================================================
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- Docker (multi-stage build)
+- Nginx (static hosting)
+
+==================================================
+PROJECT STRUCTURE (EXPECTED)
+==================================================
+securedocs/
+ ├─ src/
+ ├─ public/
+ ├─ index.html
+ ├─ package.json
+ ├─ vite.config.ts
+ ├─ tsconfig.json
+ ├─ tsconfig.node.json
+ ├─ tailwind.config.js
+ ├─ postcss.config.js
+ ├─ docker-compose.yml
+ ├─ nginx.conf
+ ├─ Dockerfile
+ └─ .env   (server only, not committed)
+
+==================================================
+PREREQUISITES
+==================================================
+- Ubuntu VPS (20.04 / 22.04)
+- Docker & Docker Compose
+- Open ports:
+  - 80 (HTTP)
+  - 443 (HTTPS – optional)
+
+==================================================
+1. CONNECT TO VPS
+==================================================
 ssh user@your-server-ip
-Step 2: Install Docker and Git
-Update the package index and install Docker and Docker Compose.
-code
-Bash
-# Update repositories
+
+==================================================
+2. INSTALL DOCKER & GIT
+==================================================
 sudo apt update && sudo apt upgrade -y
-
-# Install Docker
-sudo apt install -y docker.io git
-
-# Start and enable Docker
-sudo systemctl start docker
+sudo apt install -y docker.io docker-compose git
 sudo systemctl enable docker
+sudo systemctl start docker
 
-# Install Docker Compose
-sudo apt install -y docker-compose
-Step 3: Clone/Upload Your Code
-You can clone your repository from GitHub or upload the files directly. Assuming you create a directory called securedocs:
-code
-Bash
+(Optional: run docker without sudo)
+sudo usermod -aG docker $USER
+newgrp docker
+
+==================================================
+3. UPLOAD / CLONE PROJECT
+==================================================
+Option A: Clone repository
+git clone <YOUR_REPO_URL> securedocs
+cd securedocs
+
+Option B: Manual upload
 mkdir securedocs
 cd securedocs
-(Copy all the application files provided above into this directory)
-Step 4: Configure Environment Variables
-Create a .env file to store your Gemini API Key. This is required for the build process.
-code
-Bash
+(copy all project files here)
+
+==================================================
+4. ENVIRONMENT VARIABLES
+==================================================
+Create .env file:
 nano .env
-Paste the following content (replace YOUR_GEMINI_API_KEY with your actual key):
-code
-Env
+
+Add:
 API_KEY=YOUR_GEMINI_API_KEY
-Save and exit (Ctrl+O, Enter, Ctrl+X).
-Step 5: Build and Deploy
-Run Docker Compose to build the application image and start the Nginx container.
-code
-Bash
-# Build and start in detached mode
-sudo docker-compose up -d --build
-Step 6: Verify Deployment
-Check if the container is running:
-code
-Bash
-sudo docker ps
-Open your browser and navigate to http://your-server-ip.
-(Optional) Step 7: Secure with SSL (Certbot)
+
+Save & exit (Ctrl+O, Enter, Ctrl+X)
+
+NOTE:
+If using Vite, env variables usually must start with:
+VITE_API_KEY=YOUR_GEMINI_API_KEY
+
+==================================================
+5. BUILD & DEPLOY
+==================================================
+docker-compose up -d --build
+
+Verify:
+docker ps
+
+Open browser:
+http://your-server-ip
+
+==================================================
+6. USEFUL COMMANDS
+==================================================
+View logs:
+docker-compose logs -f
+
+Restart:
+docker-compose restart
+
+Stop:
+docker-compose down
+
+Rebuild clean:
+docker-compose down
+docker-compose up -d --build
+
+==================================================
+7. NGINX SPA ROUTING
+==================================================
+Ensure nginx.conf contains:
+try_files $uri $uri/ /index.html;
+
+This prevents 404 on page refresh.
+
+==================================================
+8. SSL (OPTIONAL – RECOMMENDED)
+==================================================
+Install Certbot:
+sudo apt install -y certbot python3-certbot-nginx
+
+Generate SSL:
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+Test auto-renew:
+sudo certbot renew --dry-run
+
+==================================================
+TROUBLESHOOTING
+==================================================
+
+Port 80 already in use:
+sudo lsof -i :80
+sudo systemctl stop apache2
+sudo systemctl disable apache2
+
+Firewall issue:
+sudo ufw status
+sudo ufw allow 80/tcp
+
+Env changes not applied:
+docker-compose up -d --build
+
+==================================================
+PRODUCTION BEST PRACTICES
+==================================================
+- Do NOT commit .env
+- Always use HTTPS in production
+- Clean unused docker images:
+docker system prune -af
+
+==================================================
+END
+==================================================
