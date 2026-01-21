@@ -1,0 +1,5 @@
+{
+  "name": "SecureDocs Chat",
+  "description": "A secure, document-grounded chatbot system featuring project-level and user-level knowledge bases with strict RAG enforcement.",
+  "requestFramePermissions": []
+}
