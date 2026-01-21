@@ -1,6 +1,5 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://chatgpt.com/s/m_69708b3eac0c8191876eb8f3203456d0" />
-</div>
+https://chatgpt.com/s/m_69708b3eac0c8191876eb8f3203456d0
+
 
 # Run and deploy your AI Studio app
 
